@@ -1,4 +1,5 @@
 #kakao vision api
+
 import json
 import os
 import cv2
