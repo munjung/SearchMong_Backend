@@ -9,10 +9,10 @@ params = cgi.FieldStorage()
 
 keyword = params['keyword'].value
 
-client_id = 'Ze_M4Mr7yphwtkKAnDxT'
-client_secret = 'qMtvEksYrR'
+client_id = 'idididid'
+client_secret = 'secret'
 
-encText = urllib.parse.quote("hello")
+encText = urllib.parse.quote("dkdkdkskfsi")
 data = "source=en&target=ko&text=" + encText
 url = "https://openapi.naver.com/v1/language/translate"
 
@@ -24,6 +24,8 @@ response = urllib.request.urlopen(request, data=data.encode("utf-8"))
 rescode = response.getcode()
 if(rescode==200):
     response_body = response.read().decode('utf-8')
-    json_obj = re
+    json_data = json.loads(response_body)
+    keyword_str = json_data["message"]["result"]["translatedText"]
+
 else:
     print("Error Code:" + rescode)
