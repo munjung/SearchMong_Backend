@@ -4,14 +4,16 @@ import cgi
 import cgitb
 import json
 from urllib.parse import quote
+from threading import Thread
 
 cgitb.enable()
-params = cgi.FieldStorage()
 
-keyword = params['keyword'].value
+appkey = 'appkey'
+client_id = 'id'
+client_secret = 'sec'
 
-client_id = 'idid'
-client_secret = 'secret'
+status = 0
+kor_res = ''
 
 def eng_to_kor(keyword: str):
     encText = urllib.parse.quote(keyword)
@@ -27,22 +29,42 @@ def eng_to_kor(keyword: str):
     if rescode == 200:
         response_body = response.read().decode('utf-8')
         json_data = json.loads(response_body)
-        keyword_str = json_data["message"]["result"]["translatedText"]
-        find_image(keyword_str)
+        global status
+        global kor_res
+        status = 1
+        kor_res = json_data["message"]["result"]["translatedText"]
+        return kor_res
 
+    else:
+        return "Error"
+
+
+
+def find_image(keyword_str: str):
+    keyword_str = quote(keyword_str)
+    url = 'https://dapi.kakao.com/v2/search/image'
+    request = urllib.request.Request(url)
+    request.add_header('Authorization', 'KakaoAK {}'.format(appkey))
+    data = 'query=' + keyword_str + "&sort=accuracy"
+    ssl._create_default_https_context = ssl._create_unverified_context
+    response = urllib.request.urlopen(request, data=data.encode("utf-8"))
+    rescode = response.getcode()
+    if rescode == 200:
+        res = response.read().decode('utf-8')
+        print(res)
     else:
         print("Error Code:" + rescode)
 
-def find_image(keyword_str: str):
-    keyword_str = quote("태항호")
-    url = "https://openapi.naver.com/v1/search/image?query=" + keyword_str + "&display=10&start=1&sort=sim"
-    # data = keyword_str + "&display=10&start=1&sort=sim"
-    request = urllib.request.Request(url)
-    request.add_header("X-Naver-Client-Id", client_id)
-    request.add_header("X-Naver-Client-Secret", client_secret)
-    ssl._create_default_https_context = ssl._create_unverified_context
-    response = urllib.request.urlopen(request)
-    rescode = response.getcode()
-    if rescode == 200 :
-        response_body = response.read()
-        print(response_body.decode('utf-8'))
+
+params = cgi.FieldStorage()
+keyword = params['keyword'].value
+
+t1 = Thread(target=eng_to_kor, args=keyword)
+t1.start()
+t1.join()
+
+if status > 0:
+    find_image(kor_res)
+
+else:
+    print("Error")

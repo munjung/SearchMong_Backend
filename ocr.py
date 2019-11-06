@@ -22,7 +22,7 @@ def image_url_save(image_url: str, image_type: str):
     opener.addheaders = [('User-Agent',
                           'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
     urllib.request.install_opener(opener)
-    urllib.request.urlretrieve(image_url, "img/temp." + image_type)
+    urllib.request.urlretrieve(image_url, "temp." + image_type)
 
 
 def ocr_resize(image_path: str):
@@ -46,6 +46,7 @@ def ocr_resize(image_path: str):
             height, width, _ = height, width, _ = image.shape
             image_path = "{}_resized.jpg".format(image_path)
             return image_path
+
         else:
             return image_path
 
@@ -98,7 +99,7 @@ t1 = Thread(target=image_url_save, args=(image_url, image_type))
 t1.start()
 t1.join()
 
-image_path = "img/temp."+image_type
+image_path = "temp."+image_type
 appkey = 'appkey'
 
 resize_impath = ocr_resize(image_path)
